@@ -60,6 +60,6 @@ public class MainViewController implements Initializable{
 	}
 	
 	@Override
-	public void initialize(URL uri, ResourceBundle resourceBundle) {
+	public void initialize(URL url, ResourceBundle resourceBundle) {
 	}
 }
