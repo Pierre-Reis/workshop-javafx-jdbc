@@ -1,6 +1,7 @@
 package gui;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,18 +30,32 @@ import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener{
 
-	private SellerService departmentService;
+	private SellerService sellerService;
 	
 	@FXML
 	private TableView<Seller> tableViewSeller;
+	
 	@FXML
 	private TableColumn<Seller, Integer> tableColumnID;
+	
 	@FXML
 	private TableColumn<Seller, String> tableColumnName;
+	
+	@FXML
+	private TableColumn<Seller, String> tableColumnEmail;
+	
+	@FXML
+	private TableColumn<Seller, Date> tableColumnBirthDate;
+	
+	@FXML
+	private TableColumn<Seller, Double> tableColumnSalary;
+	
 	@FXML
 	private TableColumn<Seller, Seller> tableColumnEdit;
+	
 	@FXML
 	private TableColumn<Seller, Seller> tableColumnRemove;
+	
 	
 	@FXML
 	private Button btNew;
@@ -49,8 +64,8 @@ public class SellerListController implements Initializable, DataChangeListener{
 	
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
-		Seller department = new Seller();
-		createDialogForm(department, "/gui/SellerForm.fxml", parentStage);
+		Seller seller = new Seller();
+		createDialogForm(seller, "/gui/SellerForm.fxml", parentStage);
 	}
 	
 	@Override
@@ -63,34 +78,39 @@ public class SellerListController implements Initializable, DataChangeListener{
 
 		tableColumnID.setCellValueFactory(new PropertyValueFactory<>("id"));
 		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
+		tableColumnEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+		tableColumnBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+		Utils.formatTableColumnDate(tableColumnBirthDate, "dd/MM/yyyy");
+		tableColumnSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
+		Utils.formatTableColumnDouble(tableColumnSalary, 2);
 		
 		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewSeller.prefHeightProperty().bind(stage.heightProperty());
 	}
 	
-	public void setSellerService(SellerService departmentService) {
-		this.departmentService = departmentService;
+	public void setSellerService(SellerService sellerService) {
+		this.sellerService = sellerService;
 	}
 	
 	public void updateTableView() {
-		if(departmentService == null) {
+		if(sellerService == null) {
 			throw new IllegalStateException("Service was null");
 		}
-		List<Seller> departmentList = departmentService.findAll();
-		obsSellerList = FXCollections.observableList(departmentList);
+		List<Seller> sellerList = sellerService.findAll();
+		obsSellerList = FXCollections.observableList(sellerList);
 		tableViewSeller.setItems(obsSellerList);
 		initEditButtons();
 		initRemoveButtons();
 	}
 	
-	public void createDialogForm(Seller department, String absoluteName, Stage parentStage) {
+	public void createDialogForm(Seller seller, String absoluteName, Stage parentStage) {
 		
 //		try {
 //			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 //			Pane pane = loader.load();
 //			
 //			SellerFormController controller = loader.getController();
-//			controller.setSeller(department);
+//			controller.setSeller(seller);
 //			controller.setSellerService(new SellerService());
 //			controller.subcribeDataChangeListener(this);
 //			controller.updateDataForm();
@@ -156,11 +176,11 @@ public class SellerListController implements Initializable, DataChangeListener{
 		Optional<ButtonType> result = Alerts.showConfirmation("Confirmation", "Are you sure to delete?");
 		
 		if(result.get() == ButtonType.OK) {
-			if(departmentService == null) {
+			if(sellerService == null) {
 				throw new IllegalStateException("Service was null");
 			}
 			try {
-				departmentService.remove(obj);
+				sellerService.remove(obj);
 				updateTableView();
 			}
 			catch(DbIntegrityException e) {
