@@ -107,7 +107,9 @@ public class DepartmentFormController implements Initializable{
 	}
 	
 	public void updateDataForm() {
-		
+		if(department == null) {
+			throw new IllegalStateException("department was null");
+		}
 		txtId.setText(String.valueOf(department.getId()));
 		txtName.setText(department.getName());
 	}
